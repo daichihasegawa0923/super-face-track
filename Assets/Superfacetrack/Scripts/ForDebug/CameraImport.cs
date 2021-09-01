@@ -18,6 +18,12 @@ namespace SuperFaceTrack.ForDebug
         [SerializeField]
         private GameObject _eyes;
 
+        [SerializeField]
+        private GameObject _eye01;
+        [SerializeField]
+        private GameObject _eye02;
+
+
         Vector3 _firstPosition;
         Vector3 _firstSpin;
 
@@ -29,8 +35,71 @@ namespace SuperFaceTrack.ForDebug
             _rowImage.texture = WebCamTexture;
             WebCamTexture.Play();
             StartCoroutine(FaceTracking());
+            StartCoroutine(EyeTracking());
+            StartCoroutine(FaceSpinYAxis());
             _firstPosition = _face.transform.position;
             _firstSpin = _face.transform.eulerAngles;
+        }
+
+        IEnumerator FaceSpinYAxis()
+        {
+            while (true)
+            {
+
+                var texture = WebCamTexture;
+                var eyes = FacePositionGetter.GetEyes(GrayTextureGetter.Get(texture));
+                if (eyes.Length == 2)
+                {
+                    _eyes.SetActive(true);
+                    var eye01 = eyes[0];
+                    var eye02 = eyes[1];
+
+                    SetTransform(_eye01.transform, eye01);
+                    SetTransform(_eye02.transform, eye02);
+
+                    var leftEye = eye01.Center.X > eye02.Center.X ? eye01 : eye02;
+                    var rightEye = eye01.Center.X > eye02.Center.X ? eye02 : eye01;
+
+                    var dSizeX = (rightEye.Size.Width - leftEye.Size.Width);
+                    Debug.Log(dSizeX);
+                    var spin = _firstSpin;
+                    spin.y += dSizeX;
+                    _face.transform.eulerAngles = spin;
+                }
+                yield return new WaitForSeconds(0.25f);
+            }
+        }
+
+        IEnumerator EyeTracking()
+        {
+            while (true)
+            {
+
+                var texture = WebCamTexture;
+                var eyes = FacePositionGetter.GetEyes(GrayTextureGetter.Get(texture));
+                if (eyes.Length == 2)
+                {
+                    _eyes.SetActive(true);
+                    var eye01 = eyes[0];
+                    var eye02 = eyes[1];
+
+                    SetTransform(_eye01.transform, eye01);
+                    SetTransform(_eye02.transform, eye02);
+
+                    var leftEye = eye01.Center.X > eye02.Center.X ? eye01 : eye02;
+                    var rightEye = eye01.Center.X > eye02.Center.X ? eye02 : eye01;
+
+                    var dY = leftEye.Center.Y - rightEye.Center.Y;
+                    var spin = _firstSpin;
+                    spin.z += dY;
+                    _face.transform.eulerAngles = spin;
+                }
+                else if (eyes.Length == 0)
+                {
+                    _eyes.SetActive(false);
+                }
+                yield return new WaitForSeconds(0.1f);
+            }
         }
 
         IEnumerator FaceTracking()
@@ -39,7 +108,6 @@ namespace SuperFaceTrack.ForDebug
             {
                 var texture = WebCamTexture;
                 var faces = FacePositionGetter.GetFaces(GrayTextureGetter.Get(texture));
-                var eyes = FacePositionGetter.GetEyes(GrayTextureGetter.Get(texture));
                 if (faces.Length != 0)
                 {
                     var width  = texture.width;
@@ -53,29 +121,16 @@ namespace SuperFaceTrack.ForDebug
                     _face.transform.position = position;
                 }
 
-                if (eyes.Length == 2)
-                {
-                    _eyes.SetActive(true);
-                    var eye01 = eyes[0];
-                    var eye02 = eyes[1];
-
-                    var leftEye = eye01.Center.X > eye02.Center.X ? eye01 : eye02;
-                    var rightEye = eye01.Center.X > eye02.Center.X ? eye02 : eye01;
-
-                    var dSizeX = rightEye.Size.Width - leftEye.Size.Width;
-                    var dY = leftEye.Center.Y - rightEye.Center.Y;
-                    var spin = _firstSpin;
-                    spin.z += dY;
-                    spin.y += dSizeX;
-                    _face.transform.eulerAngles = spin;
-                }
-                else if (eyes.Length == 0)
-                {
-                    _eyes.SetActive(false);
-                }
-
                 yield return new WaitForSeconds(0.01f);
             }
+        }
+
+        private void SetTransform(Transform transform, OpenCvSharp.Rect rect)
+        {
+            var position = transform.position;
+            position.x = rect.Center.X;
+            position.y = rect.Center.Y;
+            transform.position = position * 0.01f;
         }
     }
 }
