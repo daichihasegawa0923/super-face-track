@@ -53,7 +53,7 @@ namespace SuperFaceTrack.ForDebug
                     _face.transform.position = position;
                 }
 
-                if (eyes.Length >= 2)
+                if (eyes.Length == 2)
                 {
                     _eyes.SetActive(true);
                     var eye01 = eyes[0];
@@ -69,7 +69,7 @@ namespace SuperFaceTrack.ForDebug
                     spin.y += dSizeX;
                     _face.transform.eulerAngles = spin;
                 }
-                else
+                else if (eyes.Length == 0)
                 {
                     _eyes.SetActive(false);
                 }

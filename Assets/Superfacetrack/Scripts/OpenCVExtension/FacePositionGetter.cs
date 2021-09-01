@@ -9,6 +9,8 @@ namespace SuperFaceTrack.OpenCVExtension
 {
     public class FacePositionGetter
     {
+        static Size eyesSize = new Size(20, 20);
+
         public static OpenCvSharp.Rect[] GetFaces(Mat mat)
         {
             var haarCascade = new CascadeClassifier("Assets/OpenCV+Unity/Demo/Face_Detector/haarcascade_frontalface_default.xml");
@@ -19,7 +21,7 @@ namespace SuperFaceTrack.OpenCVExtension
         public static OpenCvSharp.Rect[] GetEyes(Mat mat)
         {
             var harrCascade = new CascadeClassifier("Assets/OpenCV+Unity/Demo/Face_Detector/haarcascade_eye_tree_eyeglasses.xml");
-            var eyes = harrCascade.DetectMultiScale(mat);
+            var eyes = harrCascade.DetectMultiScale(mat, minSize: eyesSize);
             return eyes;
         }
     }
