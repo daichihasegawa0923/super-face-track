@@ -19,6 +19,8 @@ namespace SuperFaceTrack.ForDebug
         [SerializeField]
         private GameObject _eyes;
 
+        [SerializeField]
+        private GameObject _mouth;
 
         Vector3 _firstPosition;
 
@@ -27,6 +29,7 @@ namespace SuperFaceTrack.ForDebug
 
         private void Start()
         {
+
             FaceTrackExecuter.Instance.Execute((spin) =>
             {
                 _face.transform.eulerAngles = spin;
@@ -34,7 +37,12 @@ namespace SuperFaceTrack.ForDebug
             (isEyeOpen) =>
             {
                 _eyes.SetActive(isEyeOpen);
-            }, null);
+            },
+            (mouthSize) => 
+            {
+                _mouth.transform.localScale = mouthSize * 0.01f;
+            }
+            );
         }
     }
 }

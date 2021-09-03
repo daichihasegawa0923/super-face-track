@@ -20,26 +20,30 @@ namespace SuperFaceTrack.FaceTrack
         [SerializeField]
         private List<Vector3> _calclaterVector3 = new List<Vector3>();
 
-        public void Execute(Action<Vector3> spinFaceAction, Action<bool> eyeOpenAction, Action<bool> mouseOpenAction)
+        public void Execute(Action<Vector3> spinFaceAction, Action<bool> eyeOpenAction, Action<Vector3> mouthOpenAction)
         {
             WebCamTexture = new WebCamTexture();
             WebCamTexture.Play();
             StartCoroutine(FaceSpinTrack(spinFaceAction));
             StartCoroutine(EyeOpenClose(eyeOpenAction));
+            StartCoroutine(MouthOpenClose(mouthOpenAction));
         }
+
+        private OpenCvSharp.Rect[] _eyes;
+        private OpenCvSharp.Rect[] _faces;
 
         IEnumerator FaceSpinTrack(Action<Vector3> spinFaceAction)
         {
             while (true)
             {
                 var texture = WebCamTexture;
-                var eyes = FacePositionGetter.GetEyes(GrayTextureGetter.Get(texture));
-                var faces = FacePositionGetter.GetFaces(GrayTextureGetter.Get(texture));
+                _eyes = (_rowVector3.Count == 0 || _rowVector3.Count >= _lateCount) ? FacePositionGetter.GetEyes(GrayTextureGetter.Get(texture)) : _eyes;
+                _faces = (_rowVector3.Count == 0 || _rowVector3.Count >= _lateCount) ? FacePositionGetter.GetFaces(GrayTextureGetter.Get(texture)) : _faces;
 
-                if (eyes.Length == 2)
+                if (_eyes.Length == 2)
                 {
-                    var eye01 = eyes[0];
-                    var eye02 = eyes[1];
+                    var eye01 = _eyes[0];
+                    var eye02 = _eyes[1];
 
                     var leftEye = eye01.Center.X > eye02.Center.X ? eye01 : eye02;
                     var rightEye = eye01.Center.X > eye02.Center.X ? eye02 : eye01;
@@ -48,10 +52,10 @@ namespace SuperFaceTrack.FaceTrack
 
                     var xSpin = 0;
                     var ySpin = 0;
-                    if (faces.Length > 0)
+                    if (_faces.Length > 0)
                     {
-                        xSpin = -(faces[0].Center.Y - (texture.height / 2));
-                        ySpin = rightEye.Center.X - faces[0].Center.X - (faces[0].Center.X - leftEye.Center.X);
+                        xSpin = -(_faces[0].Center.Y - (texture.height / 2));
+                        ySpin = rightEye.Center.X - _faces[0].Center.X - (_faces[0].Center.X - leftEye.Center.X);
                     }
 
                     var zSpin = leftEye.Center.Y - rightEye.Center.Y;
@@ -92,6 +96,30 @@ namespace SuperFaceTrack.FaceTrack
                 var eyes = FacePositionGetter.GetEyes(GrayTextureGetter.Get(texture));
                 eyeOpenAction(eyes.Length == 2);
                 yield return new WaitForSeconds(0.1f);
+            }
+        }
+
+        IEnumerator MouthOpenClose(Action<Vector3> mouthOpenAction)
+        {
+            while(true)
+            {
+                var texture = WebCamTexture;
+                var mouthes = FacePositionGetter.GetMouthes(GrayTextureGetter.Get(texture));
+
+                if (mouthes.Length == 1)
+                {
+                    var mouthSize = Vector3.zero;
+
+                    mouthSize.x = mouthes[0].Size.Width;
+                    mouthSize.y = mouthes[0].Size.Height;
+                    mouthSize.z = 1;
+
+                    Debug.Log(mouthes[0].Size);
+
+                    mouthOpenAction(mouthSize);
+                }
+
+                yield return new WaitForSeconds(0.01f);
             }
         }
 
