@@ -37,8 +37,8 @@ namespace SuperFaceTrack.FaceTrack
             while (true)
             {
                 var texture = WebCamTexture;
-                _eyes = (_rowVector3.Count == 0 || _rowVector3.Count >= _lateCount) ? FacePositionGetter.GetEyes(GrayTextureGetter.Get(texture)) : _eyes;
-                _faces = (_rowVector3.Count == 0 || _rowVector3.Count >= _lateCount) ? FacePositionGetter.GetFaces(GrayTextureGetter.Get(texture)) : _faces;
+                _eyes = (_rowVector3.Count == 0 || _rowVector3.Count >= _lateCount - 1) ? FacePositionGetter.GetEyes(GrayTextureGetter.Get(texture)) : _eyes;
+                _faces = (_rowVector3.Count == 0 || _rowVector3.Count >= _lateCount - 1) ? FacePositionGetter.GetFaces(GrayTextureGetter.Get(texture)) : _faces;
 
                 if (_eyes.Length == 2)
                 {
@@ -78,13 +78,9 @@ namespace SuperFaceTrack.FaceTrack
                         _calclaterVector3.RemoveAt(0);
                     }
                 }
-                else
-                {
-                    _rowVector3.Add(Vector3.zero);
-                }
 
 
-                yield return new WaitForSeconds(0.001f);
+                yield return new WaitForSeconds(0.05f);
             }
         }
 
