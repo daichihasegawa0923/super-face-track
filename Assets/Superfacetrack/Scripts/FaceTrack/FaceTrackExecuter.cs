@@ -22,8 +22,12 @@ namespace SuperFaceTrack.FaceTrack
 
         public void Execute(Action<Vector3> spinFaceAction, Action<bool> eyeOpenAction, Action<Vector3> mouthOpenAction)
         {
-            WebCamTexture = new WebCamTexture();
-            WebCamTexture.Play();
+            WebCamTexture = WebCameraPlayer.Instance.WebCamTexture;
+            var minFreq = 0;
+            var maxFreq = 0;
+            Microphone.GetDeviceCaps(null, out minFreq, out maxFreq);
+            Microphone.Start(null, true, 10, 44100);
+            while(!(Microphone.GetPosition(null) > 0)) { }
             StartCoroutine(FaceSpinTrack(spinFaceAction));
             StartCoroutine(EyeOpenClose(eyeOpenAction));
             StartCoroutine(MouthOpenClose(mouthOpenAction));
