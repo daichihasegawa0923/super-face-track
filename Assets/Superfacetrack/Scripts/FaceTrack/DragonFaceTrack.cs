@@ -23,11 +23,27 @@ namespace SuperFaceTrack.FaceTrack
         [SerializeField]
         private string _eye_open_str = "eye_open";
 
+        [SerializeField]
+        private GameObject _mouthBorn;
+
         // Start is called before the first frame update
         void Start()
         {
             FaceTrackExecuter = FaceTrackExecuter.Instance;
-            FaceTrackExecuter.Execute((spin) => { NeckControl(spin); }, (isEyeOpen) => { EyeControl(isEyeOpen); }, (spin) => { });
+            FaceTrackExecuter.Execute(
+                (spin) =>
+                {
+                    NeckControl(spin);
+                },
+                (isEyeOpen) =>
+                {
+                    EyeControl(isEyeOpen);
+                },
+                (sound) =>
+                {
+                    MouthMove(sound);
+                }
+                );
         }
 
         void NeckControl(Vector3 spin)
@@ -38,6 +54,13 @@ namespace SuperFaceTrack.FaceTrack
         void EyeControl(bool isEyeOpen)
         {
             _animator.SetBool(_eye_open_str, isEyeOpen);
+        }
+
+        void MouthMove(float sound)
+        {
+            var mouthSpin = _mouthBorn.transform.localEulerAngles;
+            mouthSpin.x = sound * 10;
+            _mouthBorn.transform.localEulerAngles = mouthSpin;
         }
 
         private void FixedUpdate()

@@ -20,14 +20,9 @@ namespace SuperFaceTrack.FaceTrack
         [SerializeField]
         private List<Vector3> _calclaterVector3 = new List<Vector3>();
 
-        public void Execute(Action<Vector3> spinFaceAction, Action<bool> eyeOpenAction, Action<Vector3> mouthOpenAction)
+        public void Execute(Action<Vector3> spinFaceAction, Action<bool> eyeOpenAction, Action<float> mouthOpenAction)
         {
             WebCamTexture = WebCameraPlayer.Instance.WebCamTexture;
-            var minFreq = 0;
-            var maxFreq = 0;
-            Microphone.GetDeviceCaps(null, out minFreq, out maxFreq);
-            Microphone.Start(null, true, 10, 44100);
-            while(!(Microphone.GetPosition(null) > 0)) { }
             StartCoroutine(FaceSpinTrack(spinFaceAction));
             StartCoroutine(EyeOpenClose(eyeOpenAction));
             StartCoroutine(MouthOpenClose(mouthOpenAction));
@@ -99,25 +94,13 @@ namespace SuperFaceTrack.FaceTrack
             }
         }
 
-        IEnumerator MouthOpenClose(Action<Vector3> mouthOpenAction)
+        IEnumerator MouthOpenClose(Action<float> mouthOpenAction)
         {
-            while(true)
+            var microphoneManager = MicrophoneManager.Instance;
+            while (true)
             {
-                var texture = WebCamTexture;
-                var mouthes = FacePositionGetter.GetMouthes(GrayTextureGetter.Get(texture));
-
-                if (mouthes.Length == 1)
-                {
-                    var mouthSize = Vector3.zero;
-
-                    mouthSize.x = mouthes[0].Size.Width;
-                    mouthSize.y = mouthes[0].Size.Height;
-                    mouthSize.z = 1;
-
-                    Debug.Log(mouthes[0].Size);
-
-                    mouthOpenAction(mouthSize);
-                }
+                var sound = microphoneManager.GetAudioData();
+                mouthOpenAction(sound);
 
                 yield return new WaitForSeconds(0.01f);
             }
