@@ -25,6 +25,9 @@ namespace SuperFaceTrack.UI
         private Slider SpinRateSlider;
 
         [SerializeField]
+        private Slider MouthSpinRateSlider;
+
+        [SerializeField]
         private RawImage RawImage;
 
         public void Start()
@@ -35,6 +38,7 @@ namespace SuperFaceTrack.UI
             NeckSpinSliderZ.onValueChanged.AddListener((value) => { Adjuster.Instance.AdjustNeckSpin.z = value; });
             SizeSlider.onValueChanged.AddListener((value) => { Adjuster.Instance.AdjustSize = value; });
             SpinRateSlider.onValueChanged.AddListener((value) => { Adjuster.Instance.NeckSpinRate = value; });
+            MouthSpinRateSlider.onValueChanged.AddListener((value) => { Adjuster.Instance.MouthSpinRate = value; });
 
             RawImage.texture = WebCameraPlayer.Instance.WebCamTexture;
         }

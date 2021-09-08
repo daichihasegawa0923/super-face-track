@@ -59,7 +59,7 @@ namespace SuperFaceTrack.FaceTrack
         void MouthMove(float sound)
         {
             var mouthSpin = _mouthBorn.transform.localEulerAngles;
-            mouthSpin.x = sound * 10;
+            mouthSpin.x = sound * Adjuster.Instance.MouthSpinRate;
             _mouthBorn.transform.localEulerAngles = mouthSpin;
         }
 
@@ -69,7 +69,6 @@ namespace SuperFaceTrack.FaceTrack
             var spin = transform.eulerAngles;
             spin.y = Adjuster.Instance.AdjustAllSpin.y;
             transform.eulerAngles = spin;
-           
         }
 
     }

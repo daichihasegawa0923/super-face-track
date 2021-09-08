@@ -18,6 +18,9 @@ namespace SuperFaceTrack.FaceTrack
 
         [SerializeField]
         public float NeckSpinRate = 1;
-        
+
+        [SerializeField]
+        public float MouthSpinRate = 100;
+
     }
 }
